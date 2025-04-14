@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"html/template"
 	"log"
 	"net/http"
 	"time"
@@ -23,7 +24,7 @@ func NewHttpServer(addr string) *httpServer {
 func (s *httpServer) Run() error {
 	router := http.NewServeMux()
 
-	conn, err := NewGRPCClient("8000")
+	conn, err := NewGRPCClient(":8000")
 
 	if err != nil {
 		log.Println("Error connecting to gRPC server:", err)
@@ -44,7 +45,26 @@ func (s *httpServer) Run() error {
 		})
 
 		if err != nil {
+			log.Println(err)
 			utils.WriteError(w, http.StatusInternalServerError, err)
+		}
+
+		res, err := c.GetOrders(ctx, &orders.GetOrdersRequest{
+			CustomerId: 2,
+		})
+
+		if err != nil {
+			log.Println(err)
+			utils.WriteError(w, http.StatusInternalServerError, err)
+			return
+		}
+
+		t := template.Must(template.New("orders").Parse(ordersTemplate))
+		err = t.Execute(w, res.Orders)
+		if err != nil {
+			log.Println(err)
+			utils.WriteError(w, http.StatusInternalServerError, err)
+			return
 		}
 	})
 	log.Println("Starting http server on", s.addr)
@@ -72,9 +92,9 @@ var ordersTemplate = `
 
 		{{range .}}
 		<tr>
-			<td>{{.OrderId}}</td>
-			<td>{{.CustomerId}}</td>
-			<td>{{.ProductId}}</td>
+			<td>{{.OrderID}}</td>
+			<td>{{.CustomerID}}</td>
+			<td>{{.ProductID}}</td>
 			<td>{{.Quantity}}</td>
 		</tr>
 		{{end}}

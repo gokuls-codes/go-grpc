@@ -19,7 +19,7 @@ func NewGRPCClient (addr string) (*grpc.ClientConn, error) {
 
 func main() {
 	// Create a new HTTP server
-	httpServer := NewHttpServer(":8080")
+	httpServer := NewHttpServer(":9000")
 
 	// Run the HTTP server
 	if err := httpServer.Run(); err != nil {
