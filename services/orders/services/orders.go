@@ -21,3 +21,7 @@ func (s *OrderSerice) CreateOrder(ctx context.Context, order *orders.Order) erro
 	ordersList = append(ordersList, order)
 	return nil
 }
+
+func (s *OrderSerice) GetOrders(ctx context.Context) ([]*orders.Order, error) {
+	return ordersList, nil
+}
